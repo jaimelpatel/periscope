@@ -52,12 +52,12 @@ export default function App() {
   const handleCameraReady = () => {
     setTimeout(() => {
       setIsCameraReady(true);
-    }, 100); // 100ms delay to ensure camera is truly ready
+    }, 500); // Increased delay to 500ms for more reliability
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Mini Camera</Text>
+      <Text style={styles.header}>Mini Cam</Text>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
