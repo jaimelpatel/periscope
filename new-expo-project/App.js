@@ -6,6 +6,7 @@ export default function App() {
   const [facing, setFacing] = useState('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [isRecording, setIsRecording] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef(null);
 
   if (!permission) {
@@ -28,7 +29,7 @@ export default function App() {
   }
 
   async function startRecording() {
-    if (cameraRef.current) {
+    if (cameraRef.current && isCameraReady) {
       try {
         setIsRecording(true);
         const { uri } = await cameraRef.current.recordAsync();
@@ -52,7 +53,12 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.header}>Mini Camera</Text>
       <View style={styles.cameraContainer}>
-        <CameraView style={styles.camera} facing={facing} ref={cameraRef} />
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={cameraRef}
+          onCameraReady={() => setIsCameraReady(true)}
+        />
       </View>
 
       <View style={styles.controlsContainer}>
@@ -61,7 +67,11 @@ export default function App() {
         </TouchableOpacity>
 
         {!isRecording ? (
-          <TouchableOpacity style={[styles.button, styles.recordButton]} onPress={startRecording}>
+          <TouchableOpacity
+            style={[styles.button, styles.recordButton, !isCameraReady && styles.disabledButton]}
+            onPress={startRecording}
+            disabled={!isCameraReady}
+          >
             <Text style={styles.text}>Start Recording</Text>
           </TouchableOpacity>
         ) : (
@@ -117,6 +127,9 @@ const styles = StyleSheet.create({
   },
   stopButton: {
     backgroundColor: '#e74c3c',
+  },
+  disabledButton: {
+    backgroundColor: '#95a5a6',
   },
   text: {
     fontSize: 16,
