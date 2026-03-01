@@ -1,25 +1,38 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Audio } from 'expo-av';
 
 export default function App() {
   const [facing, setFacing] = useState('back');
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [microphonePermission, setMicrophonePermission] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const cameraRef = useRef(null);
 
-  if (!permission) {
-    // Camera permissions are still loading.
+  useEffect(() => {
+    (async () => {
+      const { status } = await Audio.requestPermissionsAsync();
+      setMicrophonePermission(status === 'granted');
+    })();
+  }, []);
+
+  if (!cameraPermission || microphonePermission === null) {
+    // Camera or microphone permissions are still loading.
     return <View />;
   }
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
+  if (!cameraPermission.granted || !microphonePermission) {
+    // Camera or microphone permissions are not granted yet.
     return (
       <View style={styles.container}>
-        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Text style={{ textAlign: 'center' }}>We need your permission to show the camera and record audio</Text>
+        <Button onPress={requestCameraPermission} title="Grant Camera Permission" />
+        <Button onPress={async () => {
+          const { status } = await Audio.requestPermissionsAsync();
+          setMicrophonePermission(status === 'granted');
+        }} title="Grant Microphone Permission" />
       </View>
     );
   }
@@ -49,21 +62,15 @@ export default function App() {
     }
   }
 
-  const handleCameraReady = () => {
-    setTimeout(() => {
-      setIsCameraReady(true);
-    }, 500); // Increased delay to 500ms for more reliability
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Mini Cam</Text>
+      <Text style={styles.header}>Mini Camera</Text>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
           facing={facing}
           ref={cameraRef}
-          onCameraReady={handleCameraReady}
+          onCameraReady={() => setIsCameraReady(true)}
         />
       </View>
 
