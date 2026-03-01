@@ -64,7 +64,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Mini Camera</Text>
+      <Text style={styles.header}>Mini Camera test</Text>
       <View style={styles.cameraContainer}>
         <CameraView
           style={styles.camera}
